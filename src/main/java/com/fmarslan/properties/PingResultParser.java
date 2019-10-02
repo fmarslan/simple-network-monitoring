@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 public class PingResultParser {
 
 	public static final String WINDOWS = "Pinging (?<host>[a-zA-Z0-9\\.]*)(.*)data:((Reply from (?<ip>[0-9\\.]*): bytes=(?<size>[0-9]*) time(=|<|>)(?<time>[0-9]*)ms TTL(=|>|<)(?<ttl>[0-9]*))|(?<message>[a-zA-Z ]*)\\.)";
+	public static final String LINUX = "PING (?<host>[a-zA-Z0-9\\.]*)(.*)data.(((?<size>[0-9\\.]*) bytes from (?<ip>[0-9\\.]*)(.*) ttl(=|<|>)(?<ttl>[0-9\\.]*) time(<|=|>)(?<time>[0-9\\.]*))|(?<message>[a-zA-Z-]*))";
 
 	private String regex;
 
@@ -30,9 +31,9 @@ public class PingResultParser {
 			if (size != null)
 				pr.setSize(Integer.valueOf(size));
 			if (time != null)
-				pr.setTime(Integer.valueOf(time));
+				pr.setTime(Double.valueOf(time));
 			if (ttl != null)
-				pr.setTtl(Integer.valueOf(ttl));
+				pr.setTtl(Double.valueOf(ttl));
 			pr.setOriginalText(text);
 		}
 		return pr;

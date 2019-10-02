@@ -5,8 +5,8 @@ public class PingResult {
 	private String ip;
 	private String host;
 	private int size;
-	private int ttl;
-	private int time;
+	private Double ttl;
+	private Double time;
 	private String originalText;
 	private String message;
 
@@ -34,19 +34,19 @@ public class PingResult {
 		this.size = size;
 	}
 
-	public int getTtl() {
+	public Double getTtl() {
 		return ttl;
 	}
 
-	public void setTtl(int ttl) {
+	public void setTtl(Double ttl) {
 		this.ttl = ttl;
 	}
 
-	public int getTime() {
+	public Double getTime() {
 		return time;
 	}
 
-	public void setTime(int time) {
+	public void setTime(Double time) {
 		this.time = time;
 	}
 

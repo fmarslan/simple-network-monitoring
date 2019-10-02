@@ -20,9 +20,7 @@ package com.fmarslan.properties;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.logging.log4j.LogManager;
@@ -38,6 +36,7 @@ public class PingMonitor {
 	private static OSBuilder osBuilder;
 	private static int timeout;
 	private static int packageSize;
+	private static int threshold;
 
 	static SimpleDateFormat sdf;
 
@@ -55,41 +54,32 @@ public class PingMonitor {
 				outputLines.append(line);
 			}
 			PingResult pingResult = osBuilder.getParser().parse(outputLines.toString());
-			LOGGER.info("time={}, host={}, responseIp={}, size={}, miliseconds={}, ttl={}, message={}, originalText={}", getTime(), pingResult.getHost(), pingResult.getIp(), pingResult.getSize(),
-					pingResult.getTime(), pingResult.getTtl(), pingResult.getMessage(), pingResult.getOriginalText());
+			if (pingResult.getTime() == null || threshold <= pingResult.getTime())
+				LOGGER.info(
+						"time={}, host={}, responseIp={}, size={}, miliseconds={}, ttl={}, message={}, originalText={}",
+						getTime(), pingResult.getHost(), pingResult.getIp(), pingResult.getSize(), pingResult.getTime(),
+						pingResult.getTtl(), pingResult.getMessage(), pingResult.getOriginalText());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-
-//		InetAddress geek = InetAddress.getByName(ipAddress);
-//
-//		long time = System.currentTimeMillis();
-//		System.out.println("Sending Ping Request to " + ipAddress);
-//		
-//		if (geek.isReachable(Integer.valueOf(EnvironmentReader.getEnvironment("app.timeout")))) {
-//			time = System.currentTimeMillis() - time;
-//			LOGGER.info("", getTime(), REACHABLE, time, ipAddress);
-//			if (Long.valueOf(EnvironmentReader.getEnvironment("app.threshold")) <= time) {
-//
-//			}
-//		} else {
-////			LOGGER.error(String.format("%s,%s,[unreachable]", "-", ipAddress));
-//			LOGGER.error("", getTime(), UNREACHABLE, "-", ipAddress);
-//		}
 	}
 
 	private static String getTime() {
 		String timezone = EnvironmentReader.getEnvironment("app.timezone");
-		Calendar c = Calendar
-				.getInstance(TimeZone.getTimeZone(timezone));
+		Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
 		return sdf.format(c.getTime());
 	}
 
 	public static void main(String[] ars) {
-		EnvironmentReader.loadFromResource(PingMonitor.class, "app.properties");
+		EnvironmentReader.loadFromResource(PingMonitor.class, "/app.properties");
 		osBuilder = OSBuilder.build();
-		timeout = Integer.valueOf(EnvironmentReader.getEnvironment("app.timeout"));
-		packageSize = Integer.valueOf(EnvironmentReader.getEnvironment("app.packageSize"));
+		String t = EnvironmentReader.getEnvironment("app.timeout");
+		System.out.println(t);
+		timeout = Integer.valueOf(t) * osBuilder.getTimeoutFactor();
+		t = EnvironmentReader.getEnvironment("app.packageSize");
+		packageSize = Integer.valueOf(t);
+		t = EnvironmentReader.getEnvironment("app.threshold");
+		threshold = Integer.valueOf(t);
 		sdf = new SimpleDateFormat(EnvironmentReader.getEnvironment("app.dateformat"));
 		String ips = EnvironmentReader.getEnvironment("app.ips");
 		String[] ipadress = ips.split(",");
